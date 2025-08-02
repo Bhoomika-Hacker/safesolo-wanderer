@@ -1,10 +1,40 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CalendarDays, MapPin, Users, Shield, ArrowRight } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { CalendarDays, MapPin, Users, Shield, ArrowRight, X } from "lucide-react";
+
+const destinations = [
+  { id: 1, name: "Bali, Indonesia", safety: 4.5, type: "Beach & Culture" },
+  { id: 2, name: "Tokyo, Japan", safety: 4.8, type: "Urban & Culture" },
+  { id: 3, name: "Copenhagen, Denmark", safety: 4.9, type: "City & Design" },
+  { id: 4, name: "New Zealand", safety: 4.7, type: "Adventure & Nature" },
+  { id: 5, name: "Singapore", safety: 4.9, type: "Urban & Food" },
+  { id: 6, name: "Iceland", safety: 4.8, type: "Nature & Adventure" },
+  { id: 7, name: "Portugal", safety: 4.6, type: "Culture & Beach" },
+  { id: 8, name: "Canada", safety: 4.7, type: "Nature & Cities" },
+  { id: 9, name: "South Korea", safety: 4.5, type: "Culture & Food" },
+];
 
 const TripPlanner = () => {
+  const [selectedDestinations, setSelectedDestinations] = useState<typeof destinations>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleDestinationSelect = (destination: typeof destinations[0]) => {
+    if (selectedDestinations.find(d => d.id === destination.id)) {
+      setSelectedDestinations(prev => prev.filter(d => d.id !== destination.id));
+    } else if (selectedDestinations.length < 3) {
+      setSelectedDestinations(prev => [...prev, destination]);
+    }
+  };
+
+  const removeDestination = (id: number) => {
+    setSelectedDestinations(prev => prev.filter(d => d.id !== id));
+  };
+
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-6">
@@ -29,15 +59,98 @@ const TripPlanner = () => {
             <CardContent className="p-8">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 <div className="space-y-2">
-                  <Label htmlFor="destination" className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Label className="text-sm font-medium text-foreground flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
-                    Where to?
+                    Destinations (Select up to 3)
                   </Label>
-                  <Input 
-                    id="destination"
-                    placeholder="Enter destination city"
-                    className="border-border/50 focus:border-primary transition-colors"
-                  />
+                  
+                  {/* Selected Destinations */}
+                  {selectedDestinations.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {selectedDestinations.map((dest) => (
+                        <Badge 
+                          key={dest.id} 
+                          variant="secondary" 
+                          className="flex items-center gap-1 py-1 px-2"
+                        >
+                          {dest.name}
+                          <button
+                            onClick={() => removeDestination(dest.id)}
+                            className="ml-1 hover:text-destructive"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start text-muted-foreground"
+                        disabled={selectedDestinations.length >= 3}
+                      >
+                        <MapPin className="h-4 w-4 mr-2" />
+                        {selectedDestinations.length === 0 
+                          ? "Choose your destinations..." 
+                          : selectedDestinations.length >= 3 
+                            ? "Maximum destinations selected" 
+                            : "Add more destinations..."
+                        }
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
+                      <DialogHeader>
+                        <DialogTitle>Choose Your Destinations</DialogTitle>
+                      </DialogHeader>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-2">
+                        {destinations.map((destination) => {
+                          const isSelected = selectedDestinations.find(d => d.id === destination.id);
+                          const canSelect = selectedDestinations.length < 3 || isSelected;
+                          
+                          return (
+                            <Card 
+                              key={destination.id}
+                              className={`cursor-pointer transition-all hover:shadow-md ${
+                                isSelected 
+                                  ? 'ring-2 ring-primary bg-primary/5' 
+                                  : canSelect 
+                                    ? 'hover:border-primary/50' 
+                                    : 'opacity-50 cursor-not-allowed'
+                              }`}
+                              onClick={() => canSelect && handleDestinationSelect(destination)}
+                            >
+                              <CardContent className="p-4">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h3 className="font-semibold text-foreground">{destination.name}</h3>
+                                  <div className="flex items-center gap-1">
+                                    <Shield className="h-4 w-4 text-success" />
+                                    <span className="text-sm font-medium text-success">{destination.safety}</span>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-muted-foreground">{destination.type}</p>
+                                {isSelected && (
+                                  <Badge variant="default" className="mt-2">
+                                    Selected
+                                  </Badge>
+                                )}
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                      <div className="flex justify-between items-center pt-4 border-t">
+                        <span className="text-sm text-muted-foreground">
+                          {selectedDestinations.length}/3 destinations selected
+                        </span>
+                        <Button onClick={() => setIsDialogOpen(false)}>
+                          Done
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
                 
                 <div className="space-y-2">
