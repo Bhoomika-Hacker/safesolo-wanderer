@@ -14,7 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      driver_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          is_verified: boolean | null
+          license_image_url: string | null
+          license_number: string
+          rating: number | null
+          total_rides: number | null
+          updated_at: string
+          user_id: string
+          vehicle_color: string
+          vehicle_image_url: string | null
+          vehicle_make: string
+          vehicle_model: string
+          vehicle_plate: string
+          vehicle_year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_verified?: boolean | null
+          license_image_url?: string | null
+          license_number: string
+          rating?: number | null
+          total_rides?: number | null
+          updated_at?: string
+          user_id: string
+          vehicle_color: string
+          vehicle_image_url?: string | null
+          vehicle_make: string
+          vehicle_model: string
+          vehicle_plate: string
+          vehicle_year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_verified?: boolean | null
+          license_image_url?: string | null
+          license_number?: string
+          rating?: number | null
+          total_rides?: number | null
+          updated_at?: string
+          user_id?: string
+          vehicle_color?: string
+          vehicle_image_url?: string | null
+          vehicle_make?: string
+          vehicle_model?: string
+          vehicle_plate?: string
+          vehicle_year?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          full_name: string
+          id: string
+          phone: string | null
+          profile_image_url: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          full_name: string
+          id?: string
+          phone?: string | null
+          profile_image_url?: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+          profile_image_url?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +112,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "passenger" | "female_driver"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +239,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["passenger", "female_driver"],
+    },
   },
 } as const
